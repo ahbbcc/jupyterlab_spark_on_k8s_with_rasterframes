@@ -312,3 +312,25 @@ test_ra.printSchema()
 crs = test_ra.select(rf_crs("proj_raster").alias("value")).first()
 print("CRS", crs.value.crsProj4)
 ```
+
+## 2023/4/10补充
+
+也可以不通过gdalrc文件，直接在生成spark集群的config中配置driver和executor的ENV，使GDAL能读取到S3如下：
+```
+config = {
+    ......
+    "spark.executorEnv.AWS_HTTPS": "NO",
+    "spark.kubernetes.driverEnv.AWS_HTTPS": "NO",
+    "spark.executorEnv.GDAL_DISABLE_READDIR_ON_OPEN": "YES",
+    "spark.kubernetes.driverEnv.GDAL_DISABLE_READDIR_ON_OPEN": "YES",
+    "spark.executorEnv.AWS_VIRTUAL_HOSTING": "FALSE",
+    "spark.kubernetes.driverEnv.AWS_VIRTUAL_HOSTING": "FALSE",
+    "spark.executorEnv.AWS_S3_ENDPOINT": "xxx.xxx.xxx.xxx:9000",
+    "spark.kubernetes.driverEnv.AWS_S3_ENDPOINT": "xxx.xxx.xxx.xxx:9000",
+    "spark.executorEnv.AWS_SECRET_ACCESS_KEY": "secretKey",
+    "spark.kubernetes.driverEnv.AWS_SECRET_ACCESS_KEY": "secretKey",
+    "spark.executorEnv.AWS_ACCESS_KEY_ID": "accessKey",
+    "spark.kubernetes.driverEnv.AWS_ACCESS_KEY_ID": "accessKey",
+    ......
+}
+```
